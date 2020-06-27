@@ -1,30 +1,3 @@
-import numpy as np
-
-N = 4  # size of alphabet
-K = 90  # number of symbols
-r = 8
-
-# randomly initialize K symbols,
-# each represented as integer from 0 to N-1
-symbols = np.random.randint(N, size=K)
-symbols = list(symbols)
-# randomly initialize a pmf array with length N
-while True:
-    p = np.random.rand(N)
-    p = p / sum(p)
-    p = (p * 2 ** r).astype(int)
-    p[0] += 2 ** r - sum(p)
-    if all(p != 0):
-        print(p)
-        break
-
-d = np.cumsum(p)
-c = np.insert(d[:-1], 0, 0)
-
-p = [int(x) for x in p]
-c = [int(x) for x in c]
-
-
 def ans_encoder(symbols, p, c, r):
     """ ANS encoder (no rescaling)
 
@@ -88,12 +61,14 @@ def ans_decoder(s, p, c, r):
         list of decoded symbols
 
     """
+
     def h(s):
         s = s % 2 ** r
         # this loop can be improved by binary search
         for a in reversed(range(len(c))):
             if s >= c[a]:
                 return a
+
     decoded_symbols = []
     while s:
         x = h(s)
@@ -104,14 +79,6 @@ def ans_decoder(s, p, c, r):
             s -= 1
     return list(reversed(decoded_symbols))
 
-s = ans_encoder(symbols, p, c, r)
-print(s)
-decoded_symbols = ans_decoder(s, p, c, r)
-
-print(decoded_symbols)
-print(symbols)
-
-assert all(x == y for x, y in zip(decoded_symbols, symbols))
 
 ## Test code
 import random
@@ -134,8 +101,8 @@ s = ans_encoder(symbols, p, c, r)
 decoded_symbols = ans_decoder(s, p, c, r)
 
 # statistics
-average_bps = math.log2(s)/sequence_length
-entropy = sum(-i/2**r * math.log2(i/2**r) for i in p)
+average_bps = math.log2(s) / sequence_length
+entropy = sum(-i / 2 ** r * math.log2(i / 2 ** r) for i in p)
 
 # sanity check
 assert all(x == y for x, y in zip(decoded_symbols, symbols))
@@ -144,4 +111,3 @@ assert all(x == y for x, y in zip(decoded_symbols, symbols))
 print(f"encoded integer        : {s}")
 print(f"average bits per symbol: {average_bps:.5f} bits/symbol")
 print(f"data source entropy    : {entropy:.5f} bits/symbol")
-
