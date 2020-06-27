@@ -2,7 +2,7 @@ import numpy as np
 
 N = 4  # size of alphabet
 K = 90  # number of symbols
-pmf_precision = 8
+r = 8
 
 # randomly initialize K symbols,
 # each represented as integer from 0 to N-1
@@ -10,26 +10,26 @@ symbols = np.random.randint(N, size=K)
 symbols = list(symbols)
 # randomly initialize a pmf array with length N
 while True:
-    pmf = np.random.rand(N)
-    pmf = pmf / sum(pmf)
-    pmf = (pmf * 2 ** pmf_precision).astype(int)
-    pmf[0] += 2 ** pmf_precision - sum(pmf)
-    if all(pmf != 0):
-        print(pmf)
+    P_int = np.random.rand(N)
+    P_int = P_int / sum(P_int)
+    P_int = (P_int * 2 ** r).astype(int)
+    P_int[0] += 2 ** r - sum(P_int)
+    if all(P_int != 0):
+        print(P_int)
         break
 
-d = np.cumsum(pmf)
+d = np.cumsum(P_int)
 c = np.insert(d[:-1], 0, 0)
 
-pmf = [int(x) for x in pmf]
+P_int = [int(x) for x in P_int]
 c = [int(x) for x in c]
 
 s = 0
-for symbol in symbols:
+for x in symbols:
     if s < c[1]:
         s += 1
-    s = 2 ** pmf_precision * (s // pmf[symbol]) + \
-        s % pmf[symbol] + c[symbol]
+    s = 2 ** r * (s // P_int[x]) + \
+        s % P_int[x] + c[x]
 
 print(s)
 
@@ -37,16 +37,16 @@ decoded_symbols = []
 
 
 def h(s):
-    s = s % 2 ** pmf_precision
+    s = s % 2 ** r
     for a in range(N - 1, -1, -1):
         if s >= c[a]:
-            return symbol
+            return a
 
 while s:
     x = h(s)
     decoded_symbols.append(x)
-    s = pmf[x] * (s // 2 ** pmf_precision) + \
-        s % (2 ** pmf_precision) - c[x]
+    s = P_int[x] * (s // 2 ** r) + \
+        s % (2 ** r) - c[x]
     if s < c[1]:
         s -= 1
 
