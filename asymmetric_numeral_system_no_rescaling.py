@@ -26,6 +26,32 @@ c = [int(x) for x in c]
 
 
 def ans_encoder(symbols, p, c, r):
+    """ ANS encoder (no rescaling)
+
+    Parameters
+    ----------
+    symbols : list of int
+        list of input symbols represented by index
+        value should not be larger than len(p)
+    p : list of int
+        quantized pmf of all input alphabet, sum(p) == 2 ** r
+    c : list of int
+        quantized cdf of all input alphabet, len(c) = len(p)
+        c[0] = 0, and c[-1] = sum(p[:-1])
+    r : int
+        bit-width precision of the quantized pmf
+        sum(p) == 2 ** r
+
+    Warnings
+    --------
+    int type for all the input arguments should be python int type,
+    which does not overflow (yes, search it)
+
+    Returns
+    -------
+    s : integer representation of the encoded message
+
+    """
     s = 0
     for x in symbols:
         if s < c[1]:
@@ -34,14 +60,38 @@ def ans_encoder(symbols, p, c, r):
             s % p[x] + c[x]
     return s
 
-s = ans_encoder(symbols, p, c, r)
-print(s)
-
 
 def ans_decoder(s, p, c, r):
+    """ ANS encoder (no rescaling)
+
+    Parameters
+    ----------
+    s : int
+        integer representation of the encoded message
+    p : list of int
+        quantized pmf of all input alphabet, sum(p) == 2 ** r
+    c : list of int
+        quantized cdf of all input alphabet, len(c) = len(p)
+        c[0] = 0, and c[-1] = sum(p[:-1])
+    r : int
+        bit-width precision of the quantized pmf
+        sum(p) == 2 ** r
+
+    Warnings
+    --------
+    int type for all the input arguments should be python int type,
+    which does not overflow (yes, search it)
+
+    Returns
+    -------
+    decoded_symbols : list of int
+        list of decoded symbols
+
+    """
     def h(s):
         s = s % 2 ** r
-        for a in range(N - 1, -1, -1):
+        # this loop can be improved by binary search
+        for a in reversed(range(len(c))):
             if s >= c[a]:
                 return a
     decoded_symbols = []
@@ -54,6 +104,8 @@ def ans_decoder(s, p, c, r):
             s -= 1
     return list(reversed(decoded_symbols))
 
+s = ans_encoder(symbols, p, c, r)
+print(s)
 decoded_symbols = ans_decoder(s, p, c, r)
 
 print(decoded_symbols)
