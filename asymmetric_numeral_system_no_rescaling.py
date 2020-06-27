@@ -24,33 +24,39 @@ c = np.insert(d[:-1], 0, 0)
 P_int = [int(x) for x in P_int]
 c = [int(x) for x in c]
 
-s = 0
-for x in symbols:
-    if s < c[1]:
-        s += 1
-    s = 2 ** r * (s // P_int[x]) + \
-        s % P_int[x] + c[x]
 
+def ans_encoder(symbols, P_int, c, r):
+    s = 0
+    for x in symbols:
+        if s < c[1]:
+            s += 1
+        s = 2 ** r * (s // P_int[x]) + \
+            s % P_int[x] + c[x]
+    return s
+
+s = ans_encoder(symbols, P_int, c, r)
 print(s)
 
-decoded_symbols = []
 
+def ans_decoder(s, P_int, c, r):
+    def h(s):
+        s = s % 2 ** r
+        for a in range(N - 1, -1, -1):
+            if s >= c[a]:
+                return a
+    decoded_symbols = []
+    while s:
+        x = h(s)
+        decoded_symbols.append(x)
+        s = P_int[x] * (s // 2 ** r) + \
+            s % (2 ** r) - c[x]
+        if s < c[1]:
+            s -= 1
+    return list(reversed(decoded_symbols))
 
-def h(s):
-    s = s % 2 ** r
-    for a in range(N - 1, -1, -1):
-        if s >= c[a]:
-            return a
+decoded_symbols = ans_decoder(s, P_int, c, r)
 
-while s:
-    x = h(s)
-    decoded_symbols.append(x)
-    s = P_int[x] * (s // 2 ** r) + \
-        s % (2 ** r) - c[x]
-    if s < c[1]:
-        s -= 1
-
-print(list(reversed(decoded_symbols)))
+print(decoded_symbols)
 print(symbols)
 
-assert all(x == y for x, y in zip(reversed(decoded_symbols), symbols))
+assert all(x == y for x, y in zip(decoded_symbols, symbols))
