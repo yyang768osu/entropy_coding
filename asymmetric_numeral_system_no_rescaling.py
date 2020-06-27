@@ -112,3 +112,36 @@ print(decoded_symbols)
 print(symbols)
 
 assert all(x == y for x, y in zip(decoded_symbols, symbols))
+
+## Test code
+import random
+import math
+
+# initialize data distribution and input length
+p = [20, 50, 80, 106]
+c = [0, 20, 70, 150]
+r = 8
+sequence_length = 100
+
+# randomly sample input
+random.seed(1)
+symbols = random.choices(range(len(p)), weights=p, k=sequence_length)
+
+# encode
+s = ans_encoder(symbols, p, c, r)
+
+# decode
+decoded_symbols = ans_decoder(s, p, c, r)
+
+# statistics
+average_bps = math.log2(s)/sequence_length
+entropy = sum(-i/2**r * math.log2(i/2**r) for i in p)
+
+# sanity check
+assert all(x == y for x, y in zip(decoded_symbols, symbols))
+
+# display results
+print(f"encoded integer        : {s}")
+print(f"average bits per symbol: {average_bps:.5f} bits/symbol")
+print(f"data source entropy    : {entropy:.5f} bits/symbol")
+
