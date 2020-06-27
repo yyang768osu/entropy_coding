@@ -10,35 +10,35 @@ symbols = np.random.randint(N, size=K)
 symbols = list(symbols)
 # randomly initialize a pmf array with length N
 while True:
-    P_int = np.random.rand(N)
-    P_int = P_int / sum(P_int)
-    P_int = (P_int * 2 ** r).astype(int)
-    P_int[0] += 2 ** r - sum(P_int)
-    if all(P_int != 0):
-        print(P_int)
+    p = np.random.rand(N)
+    p = p / sum(p)
+    p = (p * 2 ** r).astype(int)
+    p[0] += 2 ** r - sum(p)
+    if all(p != 0):
+        print(p)
         break
 
-d = np.cumsum(P_int)
+d = np.cumsum(p)
 c = np.insert(d[:-1], 0, 0)
 
-P_int = [int(x) for x in P_int]
+p = [int(x) for x in p]
 c = [int(x) for x in c]
 
 
-def ans_encoder(symbols, P_int, c, r):
+def ans_encoder(symbols, p, c, r):
     s = 0
     for x in symbols:
         if s < c[1]:
             s += 1
-        s = 2 ** r * (s // P_int[x]) + \
-            s % P_int[x] + c[x]
+        s = 2 ** r * (s // p[x]) + \
+            s % p[x] + c[x]
     return s
 
-s = ans_encoder(symbols, P_int, c, r)
+s = ans_encoder(symbols, p, c, r)
 print(s)
 
 
-def ans_decoder(s, P_int, c, r):
+def ans_decoder(s, p, c, r):
     def h(s):
         s = s % 2 ** r
         for a in range(N - 1, -1, -1):
@@ -48,13 +48,13 @@ def ans_decoder(s, P_int, c, r):
     while s:
         x = h(s)
         decoded_symbols.append(x)
-        s = P_int[x] * (s // 2 ** r) + \
+        s = p[x] * (s // 2 ** r) + \
             s % (2 ** r) - c[x]
         if s < c[1]:
             s -= 1
     return list(reversed(decoded_symbols))
 
-decoded_symbols = ans_decoder(s, P_int, c, r)
+decoded_symbols = ans_decoder(s, p, c, r)
 
 print(decoded_symbols)
 print(symbols)
