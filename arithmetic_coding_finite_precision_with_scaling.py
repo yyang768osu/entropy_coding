@@ -65,7 +65,6 @@ else:  # case 2b
 
 print(bits)
 
-M = len(bits)
 z = 0
 for i in range(range_precision):
     z = (z << 1)
@@ -86,8 +85,6 @@ while True:
             b = high
             decoded_symbols.append(index)
             break
-    # if next_bit_index >= len(bits):
-    #    break
     else:
         break
     while b <= range_half or a >= range_half:
